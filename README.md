@@ -46,6 +46,11 @@ cd iEDA
 vim README.md  # 请参考iEDA项目的README中的操作进行构建
 ```
 
+编译完成后，将 `path-to-ieda/bin`加入到环境变量`PATH`中：
+```shell
+export PATH=path-to-ieda/bin:$$PATH
+```
+
 ## 评估样例设计
 
 > [!NOTE]
