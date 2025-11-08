@@ -22,7 +22,7 @@
 
 ## 安装依赖
 
-安装yosys, 版本要求不低于0.48. 建议从[这个链接][oss-cad-suite]下载相应的工具包.
+安装yosys, 版本要求不低于0.54. 建议从[这个链接][oss-cad-suite]下载相应的工具包.
 解压缩后, 将`path-to-oss-cad-suite/bin`加入到环境变量`PATH`中, 即可调用工具包中的yosys.
 
 [oss-cad-suite]: https://github.com/YosysHQ/oss-cad-suite-build/releases
