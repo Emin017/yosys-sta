@@ -2,6 +2,7 @@ set SDC_FILE   [lindex $argv 0]
 set NETLIST_V  [lindex $argv 1]
 set DESIGN     [lindex $argv 2]
 set PDK        [lindex $argv 3]
+set INPUT_DEF  [lindex $argv 4]
 set RESULT_DIR [file dirname $NETLIST_V]
 
 source "[file dirname [info script]]/common.tcl"

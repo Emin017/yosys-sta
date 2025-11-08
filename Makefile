@@ -5,18 +5,20 @@ O ?= $(PROJ_PATH)/result
 DESIGN ?= gcd
 SDC_FILE ?= $(PROJ_PATH)/scripts/default.sdc
 RTL_FILES ?= $(shell find $(PROJ_PATH)/example -name "*.v")
-export CLK_FREQ_MHZ ?= 500
+export CLK_FREQ_MHZ ?= 100
 export CLK_PORT_NAME ?= clk
-PDK = nangate45
+PDK = ics55
 
 RESULT_DIR = $(O)/$(DESIGN)-$(CLK_FREQ_MHZ)MHz
 SCRIPT_DIR = $(PROJ_PATH)/scripts
 NETLIST_SYN_V   = $(RESULT_DIR)/$(DESIGN).netlist.syn.v
 NETLIST_FIXED_V = $(RESULT_DIR)/$(DESIGN).netlist.fixed.v
+FIXED_DEF = $(RESULT_DIR)/$(DESIGN).netlist.fixed.def
 TIMING_RPT = $(RESULT_DIR)/$(DESIGN).rpt
 
 init:
-	bash -c "$$(wget -O - https://ysyx.oscc.cc/slides/resources/scripts/init-yosys-sta.sh)"
+	@git clone https://github.com/openecos-projects/icsprout55-pdk.git ${PROJ_PATH}/pdk/${PDK}
+	@cd ${PROJ_PATH}/pdk/${PDK} && make unzip
 
 syn: $(NETLIST_SYN_V)
 $(NETLIST_SYN_V): $(RTL_FILES) $(SCRIPT_DIR)/yosys.tcl
@@ -25,12 +27,12 @@ $(NETLIST_SYN_V): $(RTL_FILES) $(SCRIPT_DIR)/yosys.tcl
 
 fix-fanout: $(NETLIST_FIXED_V)
 $(NETLIST_FIXED_V): $(SCRIPT_DIR)/fix-fanout.tcl $(SDC_FILE) $(NETLIST_SYN_V)
-	set -o pipefail && ./bin/iEDA -script $^ $(DESIGN) $(PDK) $@ 2>&1 | tee $(RESULT_DIR)/fix-fanout.log
+	set -o pipefail && iEDA -script $^ $(DESIGN) $(PDK) $@ $(FIXED_DEF) 2>&1 | tee $(RESULT_DIR)/fix-fanout.log
 	echo tcl $(SCRIPT_DIR)/yosys-area.tcl $(DESIGN) $(PDK) $@ | yosys -l $(@D)/yosys-fixed.log -s -
 
 sta: $(TIMING_RPT)
 $(TIMING_RPT): $(SCRIPT_DIR)/sta.tcl $(SDC_FILE) $(NETLIST_FIXED_V)
-	set -o pipefail && ./bin/iEDA -script $^ $(DESIGN) $(PDK) 2>&1 | tee $(RESULT_DIR)/sta.log
+	set -o pipefail && iEDA -script $^ $(DESIGN) $(PDK) $(FIXED_DEF) 2>&1 | tee $(RESULT_DIR)/sta.log
 
 clean:
 	-rm -rf result/
